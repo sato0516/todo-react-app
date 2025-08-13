@@ -55,59 +55,72 @@ function App() {
 
 
   return (
-    <div>
-      <h1>TODOリスト</h1>
+    <div className='app'>
+      <div className='card'>
+        <header className='header'>
+          <h1 className='title'>TODOリスト</h1>
+          <div className='form'>
+            <input 
+              type='text'
+              placeholder="やることを入力" //chatgptが例で記載してた所。入力欄に薄く表示されるヒント文字。
+              value={task}
+              onChange={(event) => {
+                console.log(event.target.value);
+                setTask(event.target.value);      // 状態の更新も必要！
+              }}
+            />
+            <button onClick ={handleAddTask}>追加</button> 
+          </div>
+        </header>
 
-      <input 
-      type='text'
-      placeholder="やることを入力" //chatgptが例で記載してた所。入力欄に薄く表示されるヒント文字。
-      value={task}
-      onChange={(event) => {
-        console.log(event.target.value);
-        setTask(event.target.value);      // 状態の更新も必要！
-      }}
-      />
+        <ul className='taskList'>
+          {todoList.map((item, index) => {
+            //itemやindexは変数。慣用的な名前なだけ。変更してOK。.map((1つ1つの中身, その順番) => { ... })
+            //key={index}は初学者は型として覚える。Reactが「リストのどの項目が変わったか」を見つけやすくするおまじない（エラー防止）。
+            return(
+              <li
+                key={index}
+                className={`taskItem ${item.completed ? "isDone" : ""}`}//JSXで条件付きクラス名をつける典型的な書き方。[item.completed]がtrueなら"taskItem isDone"、falseなら"taskItem"というクラス名をつける。 isDoneで完了タスクの装飾ができるようになる。             
+              >
+                <input
+                  type='checkbox'
+                  checked={item.completed}
+                  onChange={() => handleToggleComplete(index)}
+                /> 
+                <span className='taskText'>{item.text}</span> {/*<span>は文章の一部分を囲うタグ。主に特定のテキスト部分だけにスタイルを当てたいときに使う。*/}
+                <button
+                  className='iconBtn'
+                  onClick={() => handleDeleteTask(index)}
+                >
+                  削除
+                </button> {/*onClick={handleDeleteTask(index)}はダメ。関数を呼び出すのではなく、「関数を実行した結果」を渡すことになっちゃう。※onClick={handleAddTask}は引数がないため、関数そのものを渡せているのでOK※クリックでhandleAddTask()が呼ばれる）*/}
+              </li>
+            ); 
+          })}
+        </ul>
 
-      <button onClick ={handleAddTask}>追加</button> 
+        {/*上記の書き換えメモ…以下の省略形が定番パターン
 
-      <ul>
+        {配列.map((item, index) => (
+          <JSXを返す>
+        ))}
+
+        {todoList.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+        
+        ▼比較用
         {todoList.map((item, index) => {
-          //itemやindexは変数。慣用的な名前なだけ。変更してOK。.map((1つ1つの中身, その順番) => { ... })
-          //key={index}は初学者は型として覚える。Reactが「リストのどの項目が変わったか」を見つけやすくするおまじない（エラー防止）。
-          return<li key={index}>
-            <input type="checkbox"
-            checked={item.completed}
-            onChange={() => handleToggleComplete(index)}
-            /> 
-            {item.text}
-            <button onClick={() => handleDeleteTask(index)}>削除</button> {/*onClick={handleDeleteTask(index)}はダメ。関数を呼び出すのではなく、「関数を実行した結果」を渡すことになっちゃう。※onClick={handleAddTask}は引数がないため、関数そのものを渡せているのでOK※クリックでhandleAddTask()が呼ばれる）*/}
-          </li>; 
+          return<li key={index}>{item}</li>;
         })}
-      </ul>
 
-      {/*上記の書き換えメモ…以下の省略形が定番パターン
-
-      {配列.map((item, index) => (
-        <JSXを返す>
-      ))}
-
-      {todoList.map((item, index) => (
-        <li key={index}>{item}</li>
-      ))}
-      
-      ▼比較用
-      {todoList.map((item, index) => {
-        return<li key={index}>{item}</li>;
-      })}
-
-      */}
-
-
+        */}
+      </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
 
 /*作成メモ
 ●タイトルの表示<h1>
