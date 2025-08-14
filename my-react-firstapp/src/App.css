@@ -12,11 +12,12 @@
   --transition: 160ms ease;     /* hover（ユーザーがマウスカーソルをその要素の上に置いたときに適用される状態）などのアニメーション速度と動き */
 }
 
-/* ページ全体の背景やフォント設定 */
+/* 全体の背景やフォント設定,画面上の配置*/
 body {
-  margin: 0; /* 余白リセット */
-  background: var(--bg); /* 背景色は変数から */
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex;
+  justify-content: center; /* 横方向中央寄せ */
+  align-items: center; /*centerで中央寄せ */
+  background: #f7f9fc;
 }
 
 /* アプリ全体の横幅や余白設定 */
@@ -32,7 +33,7 @@ body {
   background: var(--card);        /* 背景色 */
   border-radius: var(--radius);   /* 角丸 */
   box-shadow: var(--shadow);      /* 影 */
-  padding: 20px 16px;              /* 内側余白 */
+  padding: 20px 30px;              /* 内側余白 */
 }
 
 /* ③ 入力フォーム */
@@ -111,9 +112,23 @@ body {
 }
 
 /* ⑤ アイコンボタン */
-.iconBtn { ... }
-.iconBtn:hover { ... }
-.iconBtn:active { ... }
+.iconButton {
+  background: transparent; /* 背景透明 */
+  border: none;            /* 枠線なし */
+  cursor: pointer;         /* マウスを当てたらポインター */
+  padding: 4px;            /* アイコン周りの余白 */
+  border-radius: 4px;      /* 少し角丸 */
+}
+.iconButton:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* 薄い背景色 */
+}
+/*.iconButton クラスが付いた要素の中にある imgタグ と svgタグ の両方に同じスタイルを適用しておくと、削除ボタンが 画像アイコン でも SVGアイコン でも同じ見た目に統一できる*/
+.iconButton img,
+.iconButton svg {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
 
 
 /*作成メモ
