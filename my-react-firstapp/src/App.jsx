@@ -7,14 +7,15 @@ function App() {
   // 状態を定義（※クラスコンポーネントでいうthis.stateとthis.setStateの役割）
   const [task, setTask] = useState('');
   const [todoList,setTodoList] = useState([]);  //空の文字列ではなく、空の配列を初期値としている。
+  const [dueDate, setDueDate] = useState("");
 
   const handleAddTask = () => {  //関数コンポーネントではconstで関数を定義する。※constなしで定義できるのはクラス内特有。
-    if (task.trim() === '') return; //chatgptが例で記載してた所。 スペースだけの入力を防止。
+    if (task.trim() === '') return; 
     
-    const newTask = {text: task,completed: false};//オブジェクトとして完了状態を定義
-
+    const newTask = {text: task,completed: false,dueDate: dueDate};//オブジェクトとして完了状態を定義。
     setTodoList([...todoList, newTask]); //配列として新しい要素を追加する場合、こう書く。setA([...A, 新しい要素]);
     setTask('');  // 状態の更新（入力欄を空にする）。
+    setDueDate(''); // 状態の更新（期日入力欄を空にする）。
   };
 
   const handleDeleteTask = (indexToDelete) => {
@@ -69,6 +70,11 @@ function App() {
                 setTask(event.target.value);      // 状態の更新も必要！
               }}
             />
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
             <button onClick ={handleAddTask}>追加</button> 
           </div>
         </header>
@@ -86,8 +92,14 @@ function App() {
                   type='checkbox'
                   checked={item.completed}
                   onChange={() => handleToggleComplete(index)}
-                /> 
-                <span className='taskText'>{item.text}</span> {/*<span>は文章の一部分を囲うタグ。主に特定のテキスト部分だけにスタイルを当てたいときに使う。*/}
+                />
+
+                 {/* タスク全体をまとめるコンテナ */}
+                <div className='taskContent'>
+                  <span className='taskText'>{item.text}</span>
+                  <div className='dueDate'>{item.dueDate}</div>
+                </div>
+
                 <button
                   className='iconBtn'
                   onClick={() => handleDeleteTask(index)}

@@ -130,6 +130,19 @@ body {
   vertical-align: middle;
 }
 
+/*日付の追加による追記*/
+.taskContent {
+  display: flex;
+  flex-direction: row; /* 縦に並べる */
+}
+
+.dueDate {
+  color: #666;
+  margin-left: 10px;
+  line-height: 1.6;  /* textと高さを合わせる */
+  white-space: nowrap;     /* 日付が折り返されないように */
+}
+
 
 /*作成メモ
 ＊まずは土台となるA案を作成→難易度あげてD案挑戦してみる。
