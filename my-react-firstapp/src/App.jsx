@@ -54,6 +54,39 @@ function App() {
     setTodoList(updatedList);
   };
 
+  //期日の計算をするための関数　※dateStr は date string（＝日付の文字列）の略
+  const MS_PER_DAY = 24 * 60 * 60 * 1000; //1日のミリ秒数（24時間 * 60分 * 60秒 * 1000ミリ秒）
+  
+  function toLocalDate(dateStr){ //'2025-08-14' のような文字列を東京ローカル日付(0:00)で比較できるDateへ直す
+    if (!dateStr) return null; //空文字列ならnullを返す※扱えないため
+    const [y,m,d] = dateStr.split('-').map(Number); //文字列を「2025」「08」「14」分割してmap(Number) で数値に変換
+    return new Date(y, m - 1, d); //※ローカルタイムの 年/月/日 0:00 を作る※月は0から始まるので、m-1とする…０＝1月、１＝2月…なので、8月なら「m - 1＝7」とすることで「8月」を指す。
+  }
+
+  function daysUntil(dateStr){ //今日からの残り日数
+    const due = toLocalDate(dateStr); //dueは「期日」の省略
+    if (!due) return null; //期日が無い場合はnullを返し、「期限なし」扱いにする
+    const now = new Date(); //現在のローカル時間 ex)2025-08-18 16:42:10
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); //その日の開始時刻ex)2025-08-18 00:00:00
+    const diffMs = due - today; //期日と今日の差をミリ秒で計算
+    return Math.floor(diffMs / MS_PER_DAY); //ミリ秒を日数に変換して返す
+  }
+
+  // 残り日数に応じてクラス名を決定
+  function getDueClass(dateStr) {
+    const d = daysUntil(dateStr);
+    if (d === null) return 'due--none';    // 期日なし
+    if (d < 0)      return 'due--overdue'; // 期限超過→虹色
+    if (d === 0)    return 'due--today';   // 今日→赤
+    if (d <= 3)     return 'due--soon';    // 3日以内→黄色
+    if (d <= 7)     return 'due--week';    // 1週間以内
+    return 'due--later';                   // 8日以上
+  }
+
+  //見栄えを整える（"2025-08-14" → "2025/08/14" に変換＆期日がないときは「期日なし」と表示）
+  function formatDue(dateStr) {
+    return dateStr ? dateStr.replace(/-/g, '/') : '期限なし';
+  }
 
   return (
     <div className='app'>
@@ -97,7 +130,13 @@ function App() {
                  {/* タスク全体をまとめるコンテナ */}
                 <div className='taskContent'>
                   <span className='taskText'>{item.text}</span>
-                  <div className='dueDate'>{item.dueDate}</div>
+                  <span //期日表示のためのspanタグ
+                    className={`dueDate ${getDueClass(item.dueDate)}`}
+                    title={`残り日数: ${daysUntil(item.dueDate) ?? '—'}`}
+                    aria-label={`期日: ${formatDue(item.dueDate)}`}
+                  >
+                    {formatDue(item.dueDate)}
+                  </span>
                 </div>
 
                 <button
