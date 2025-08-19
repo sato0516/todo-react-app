@@ -8,10 +8,46 @@ function App() {
   const [task, setTask] = useState('');
   const [todoList,setTodoList] = useState([]);  //空の文字列ではなく、空の配列を初期値としている。
   const [dueDate, setDueDate] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null); // いま編集中の行インデックス（編集中でなければ null）
+  const [draft, setDraft] = useState({ text: "", dueDate: "" }); // 入力フォーム用の一時データ
+
+  function startEdit(index) {
+    const t = todoList?.[index];
+    setEditingIndex(index);
+    setDraft({
+      text: t?.text ?? "",
+      dueDate: t?.dueDate ?? "",
+    }); // 編集用の一時データをセット
+  }
+
+  function cancelEdit() {
+    setEditingIndex(null); // 編集をキャンセル
+    setDraft({ text: "", dueDate: "" }); // 入力フォームを空にする
+  }
+
+  function saveEdit() {
+    const text = (draft.text ?? "").trim();
+    if (!text) return; // 空は保存しない（必要なら alert）
+    setTodoList(prev =>
+      prev.map((t, i) =>
+        i === editingIndex ? { ...t, text, dueDate: draft.dueDate || "" } : t
+      )
+    );
+    setEditingIndex(null);
+  }
+
+  function onDraftChange(e) {
+    const { name, value } = e.target;
+    setDraft(prev => ({ ...prev, [name]: value }));
+  }
+
+  function onDraftKeyDown(e) {
+    if (e.key === 'Enter') saveEdit(); // Enterで保存
+    if (e.key === 'Escape') cancelEdit(); // Escapeでキャンセル
+  }
 
   const handleAddTask = () => {  //関数コンポーネントではconstで関数を定義する。※constなしで定義できるのはクラス内特有。
     if (task.trim() === '') return; 
-    
     const newTask = {text: task,completed: false,dueDate: dueDate};//オブジェクトとして完了状態を定義。
     setTodoList([...todoList, newTask]); //配列として新しい要素を追加する場合、こう書く。setA([...A, 新しい要素]);
     setTask('');  // 状態の更新（入力欄を空にする）。
@@ -119,33 +155,76 @@ function App() {
             return(
               <li
                 key={index}
-                className={`taskItem ${item.completed ? "isDone" : ""}`}//JSXで条件付きクラス名をつける典型的な書き方。[item.completed]がtrueなら"taskItem isDone"、falseなら"taskItem"というクラス名をつける。 isDoneで完了タスクの装飾ができるようになる。             
+                className={`taskItem ${item.completed ? "isDone" : ""}`}
               >
                 <input
-                  type='checkbox'
+                  type="checkbox"
                   checked={item.completed}
                   onChange={() => handleToggleComplete(index)}
                 />
 
-                 {/* タスク全体をまとめるコンテナ */}
-                <div className='taskContent'>
-                  <span className='taskText'>{item.text}</span>
-                  <span //期日表示のためのspanタグ
-                    className={`dueDate ${getDueClass(item.dueDate)}`}
-                    title={`残り日数: ${daysUntil(item.dueDate) ?? '—'}`}
-                    aria-label={`期日: ${formatDue(item.dueDate)}`}
-                  >
-                    {formatDue(item.dueDate)}
-                  </span>
-                </div>
-
-                <button
-                  className='iconBtn'
-                  onClick={() => handleDeleteTask(index)}
-                >
-                  削除
-                </button> {/*onClick={handleDeleteTask(index)}はダメ。関数を呼び出すのではなく、「関数を実行した結果」を渡すことになっちゃう。※onClick={handleAddTask}は引数がないため、関数そのものを渡せているのでOK※クリックでhandleAddTask()が呼ばれる）*/}
+                {/* ↓↓↓ ここから “行全体” を分岐 ↓↓↓ */}
+                {editingIndex === index ? (
+                  <>
+                    {/* 編集モード */}
+                    <div className="taskContent">
+                      <input
+                        className="editText"
+                        type="text"
+                        name="text"
+                        value={draft.text}
+                        onChange={onDraftChange}
+                        onKeyDown={onDraftKeyDown}
+                        autoFocus
+                        placeholder="タスク名を入力"
+                      />
+                      <input
+                        className="editDate"
+                        type="date"
+                        name="dueDate"
+                        value={draft.dueDate ?? ""}
+                        onChange={onDraftChange}
+                        onKeyDown={onDraftKeyDown}
+                      />
+                    </div>
+                    <div className="actions">
+                      <button className="iconBtn" onClick={saveEdit} disabled={!draft.text.trim()}>
+                        保存
+                      </button>
+                      <button className="iconBtn" onClick={cancelEdit}>
+                        キャンセル
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* 通常表示モード */}
+                    <div className="taskContent"
+                      onDoubleClick={() => startEdit(index)}
+                      title="ダブルクリックで編集モード"
+                    >
+                      <span className="taskText">{item.text}</span>
+                      <div
+                        className={`dueDate ${getDueClass(item.dueDate)}`}
+                        title={`残り日数: ${daysUntil(item.dueDate) ?? "—"}`}
+                        aria-label={`期日: ${formatDue(item.dueDate)}`}
+                      >
+                        {formatDue(item.dueDate)}
+                      </div>
+                    </div>
+                    <div className="actions">
+                      <button className="iconBtn" onClick={() => startEdit(index)}>
+                        編集
+                      </button>
+                      <button className="iconBtn" onClick={() => handleDeleteTask(index)}>
+                        削除
+                      </button>
+                    </div>
+                  </>
+                )}
+                {/* ↑↑↑ 分岐は必ず1つの { … } に収め、外に文字を置かない */}
               </li>
+
             ); 
           })}
         </ul>
