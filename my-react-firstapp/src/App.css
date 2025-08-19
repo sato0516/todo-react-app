@@ -105,6 +105,7 @@ body {
   color: var(--muted);
   text-decoration: line-through;
 }
+
 /* チェックボックスのフォーカスがわかるように（アクセシビリティ） */
 .taskItem input[type="checkbox"]:focus-visible {
   outline: 2px solid var(--accent);
@@ -142,6 +143,23 @@ body {
   line-height: 1.6;  /* textと高さを合わせる */
   white-space: nowrap;     /* 日付が折り返されないように */
 }
+
+.due--none    { color: #6b7280; } /* 期限なし */
+.due--overdue { color: #dc2626; } /* 期限超過 */
+.due--today   { color: #ea580c; } /* 今日 */
+.due--soon    { color: #f59e0b; } /* 3日以内 */
+.due--week    { color: #16a34a; } /* 1週間以内 */
+.due--later   { color: #374151; } /* 余裕あり */
+
+/* 完了タスクの見た目（タスク名＋期日どちらも） */
+.taskItem.isDone .taskText,
+.taskItem.isDone .dueDate {
+  color: var(--muted, #9ca3af);   /* 既存の --muted を使用。未定義なら薄グレー */
+  text-decoration: line-through;  /* 取り消し線 */
+  opacity: .75;                   /* ほんのり薄く（お好みで調整 or 削除） */
+  transition: color .2s ease, opacity .2s ease;
+}
+
 
 
 /*作成メモ
